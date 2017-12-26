@@ -14,7 +14,7 @@
 * You should have received a copy of the GNU Affero General Public License
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *
-* Copyright (C) 2017 Michael Lee(李登淳)
+* Copyright (C) 2018 Michael Lee(李登淳)
 * Email: mikecovlee@163.com
 * Github: https://github.com/mikecovlee
 */
@@ -34,9 +34,11 @@ static cs::extension_t darwin_ui_ext_shared = cs::make_shared_extension(darwin_u
 static cs::extension_t darwin_drawable_ext_shared = cs::make_shared_extension(darwin_drawable_ext);
 namespace cs_impl {
 	template<>
-	cs::extension_t &get_ext<std::shared_ptr<darwin::drawable>>()
+	cs::extension_t &get_ext<std::shared_ptr < darwin::drawable>>
+	        ()
 	{
-		return darwin_drawable_ext_shared;
+		return
+		    darwin_drawable_ext_shared;
 	}
 
 	template<>
@@ -52,7 +54,8 @@ namespace cs_impl {
 	}
 
 	template<>
-	constexpr const char *get_name_of_type<std::shared_ptr<darwin::drawable>>()
+	constexpr const char *get_name_of_type<std::shared_ptr < darwin::drawable>>
+	        ()
 	{
 		return "cs::darwin::drawable";
 	}
