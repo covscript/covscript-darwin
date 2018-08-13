@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# CovScript Files
+include/covscript/
+*.cse
