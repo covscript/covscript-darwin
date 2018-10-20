@@ -110,7 +110,26 @@ namespace conio {
 
 	static void clrscr()
 	{
-		system("cls");
+		static CONSOLE_SCREEN_BUFFER_INFO csbi;
+		static DWORD dwWritten;
+		GetConsoleScreenBufferInfo(
+		    StdHandle,
+		    &csbi);
+		FillConsoleOutputAttribute(
+		    StdHandle,
+		    csbi.wAttributes,
+		    csbi.dwSize.X * csbi.dwSize.Y,
+		{0, 0},
+		&dwWritten);
+		FillConsoleOutputCharacterW(
+		    StdHandle,
+		    L' ',
+		    csbi.dwSize.X * csbi.dwSize.Y,
+		{0, 0},
+		&dwWritten);
+		SetConsoleCursorPosition(
+		    StdHandle,
+		{0, 0});
 	}
 
 	static int getch()

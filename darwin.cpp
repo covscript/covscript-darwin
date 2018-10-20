@@ -17,9 +17,7 @@
 * Email: mikecovlee@163.com
 * Github: https://github.com/mikecovlee
 */
-#ifndef CS_DEBUG
 #define DARWIN_DISABLE_LOG
-#endif
 #define DARWIN_FORCE_BUILTIN
 
 #include <darwin/darwin.hpp>
