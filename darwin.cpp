@@ -22,26 +22,21 @@
 
 #include <darwin/darwin.hpp>
 #include <covscript/extension.hpp>
-#include <covscript/cni.hpp>
 
-static cs::extension darwin_ext;
-static cs::extension darwin_ui_ext;
-static cs::extension darwin_core_ext;
-static cs::extension darwin_drawable_ext;
-static cs::extension_t darwin_ui_ext_shared = cs::make_shared_namespace(darwin_ui_ext);
-static cs::extension_t darwin_core_ext_shared = cs::make_shared_namespace(darwin_core_ext);
-static cs::extension_t darwin_drawable_ext_shared = cs::make_shared_namespace(darwin_drawable_ext);
+static cs::namespace_t darwin_ui_ext=cs::make_shared_namespace<cs::name_space>();
+static cs::namespace_t darwin_core_ext=cs::make_shared_namespace<cs::name_space>();
+static cs::namespace_t darwin_drawable_ext=cs::make_shared_namespace<cs::name_space>();
 namespace cs_impl {
 	template<>
-	cs::extension_t &get_ext<darwin::pixel>()
+	cs::namespace_t &get_ext<darwin::pixel>()
 	{
-		return darwin_core_ext_shared;
+		return darwin_core_ext;
 	}
-	
+
 	template<>
-	cs::extension_t &get_ext<std::shared_ptr<darwin::drawable>>()
+	cs::namespace_t &get_ext<std::shared_ptr<darwin::drawable>>()
 	{
-		return darwin_drawable_ext_shared;
+		return darwin_drawable_ext;
 	}
 
 	template<>
@@ -57,8 +52,7 @@ namespace cs_impl {
 	}
 
 	template<>
-	constexpr const char *get_name_of_type<std::shared_ptr < darwin::drawable>>
-	        ()
+	constexpr const char *get_name_of_type<std::shared_ptr<darwin::drawable>>()
 	{
 		return "cs::darwin::drawable";
 	}
@@ -128,6 +122,21 @@ namespace darwin_cs_ext {
 	}
 
 // Darwin UI Function
+	var parse_value(const std::string &str)
+	{
+		if (str == "true")
+			return true;
+		if (str == "false")
+			return false;
+		try {
+			return parse_number(str);
+		}
+		catch (...) {
+			return str;
+		}
+		return str;
+	}
+
 	void message_box(const string &title, const string &message, const string &button)
 	{
 		std::size_t width = std::max(title.size(), std::max(message.size(), button.size())) + 4;
@@ -340,66 +349,69 @@ namespace darwin_cs_ext {
 		pic->draw_picture(x, y, *p);
 	}
 
-	void init()
+	void init(name_space* darwin_ext)
 	{
+		(*darwin_ext)
 		// Namespaces
-		darwin_ext.add_var("ui", var::make_protect<extension_t>(darwin_ui_ext_shared));
-		darwin_ext.add_var("core", var::make_protect<extension_t>(darwin_core_ext_shared));
-		darwin_ext.add_var("drawable", var::make_protect<extension_t>(darwin_drawable_ext_shared));
+		.add_var("ui", make_namespace(darwin_ui_ext))
+		.add_var("core", make_namespace(darwin_core_ext))
+		.add_var("drawable", make_namespace(darwin_drawable_ext))
 		// Colors
-		darwin_ext.add_var("black", var::make_constant<darwin::colors>(darwin::colors::black));
-		darwin_ext.add_var("white", var::make_constant<darwin::colors>(darwin::colors::white));
-		darwin_ext.add_var("red", var::make_constant<darwin::colors>(darwin::colors::red));
-		darwin_ext.add_var("green", var::make_constant<darwin::colors>(darwin::colors::green));
-		darwin_ext.add_var("blue", var::make_constant<darwin::colors>(darwin::colors::blue));
-		darwin_ext.add_var("pink", var::make_constant<darwin::colors>(darwin::colors::pink));
-		darwin_ext.add_var("yellow", var::make_constant<darwin::colors>(darwin::colors::yellow));
-		darwin_ext.add_var("cyan", var::make_constant<darwin::colors>(darwin::colors::cyan));
+		.add_var("black", var::make_constant<darwin::colors>(darwin::colors::black))
+		.add_var("white", var::make_constant<darwin::colors>(darwin::colors::white))
+		.add_var("red", var::make_constant<darwin::colors>(darwin::colors::red))
+		.add_var("green", var::make_constant<darwin::colors>(darwin::colors::green))
+		.add_var("blue", var::make_constant<darwin::colors>(darwin::colors::blue))
+		.add_var("pink", var::make_constant<darwin::colors>(darwin::colors::pink))
+		.add_var("yellow", var::make_constant<darwin::colors>(darwin::colors::yellow))
+		.add_var("cyan", var::make_constant<darwin::colors>(darwin::colors::cyan))
 		// Type Constructor
-		darwin_ext.add_var("pixel", var::make_protect<callable>(cni(pixel), true));
-		darwin_ext.add_var("picture", var::make_protect<callable>(cni(picture), true));
+		.add_var("pixel", make_cni(pixel, true))
+		.add_var("picture", make_cni(picture, true))
 		// Darwin Main Function
-		darwin_ext.add_var("load", var::make_protect<callable>(cni(load)));
-		darwin_ext.add_var("exit", var::make_protect<callable>(cni(exit)));
-		darwin_ext.add_var("is_kb_hit", var::make_protect<callable>(cni(is_kb_hit)));
-		darwin_ext.add_var("get_kb_hit", var::make_protect<callable>(cni(get_kb_hit)));
-		darwin_ext.add_var("fit_drawable", var::make_protect<callable>(cni(fit_drawable)));
-		darwin_ext.add_var("get_drawable", var::make_protect<callable>(cni(get_drawable)));
-		darwin_ext.add_var("update_drawable", var::make_protect<callable>(cni(update_drawable)));
-		darwin_ext.add_var("set_frame_limit", var::make_protect<callable>(cni(set_frame_limit)));
-		darwin_ext.add_var("set_draw_line_precision", var::make_protect<callable>(cni(set_draw_line_precision)));
+		.add_var("load", make_cni(load))
+		.add_var("exit", make_cni(exit))
+		.add_var("is_kb_hit", make_cni(is_kb_hit))
+		.add_var("get_kb_hit", make_cni(get_kb_hit))
+		.add_var("fit_drawable", make_cni(fit_drawable))
+		.add_var("get_drawable", make_cni(get_drawable))
+		.add_var("update_drawable", make_cni(update_drawable))
+		.add_var("set_frame_limit", make_cni(set_frame_limit))
+		.add_var("set_draw_line_precision", make_cni(set_draw_line_precision));
 		// Darwin UI Function
-		darwin_ui_ext.add_var("message_box", var::make_protect<callable>(cni(message_box)));
-		darwin_ui_ext.add_var("input_box", var::make_protect<callable>(cni(input_box)));
+		(*darwin_ui_ext)
+		.add_var("message_box", make_cni(message_box))
+		.add_var("input_box", make_cni(input_box));
 		// Darwin Core Function
-		darwin_core_ext.add_var("get_char", var::make_protect<callable>(cni(get_char), true));
-		darwin_core_ext.add_var("set_char", var::make_protect<callable>(cni(set_char)));
-		darwin_core_ext.add_var("get_front_color", var::make_protect<callable>(cni(get_front_color), true));
-		darwin_core_ext.add_var("set_front_color", var::make_protect<callable>(cni(set_front_color)));
-		darwin_core_ext.add_var("get_back_color", var::make_protect<callable>(cni(get_back_color), true));
-		darwin_core_ext.add_var("set_back_color", var::make_protect<callable>(cni(set_back_color)));
+		(*darwin_core_ext)
+		.add_var("get_char", make_cni(get_char, true))
+		.add_var("set_char", make_cni(set_char))
+		.add_var("get_front_color", make_cni(get_front_color, true))
+		.add_var("set_front_color", make_cni(set_front_color))
+		.add_var("get_back_color", make_cni(get_back_color, true))
+		.add_var("set_back_color", make_cni(set_back_color));
 		// Drawable Function
-		darwin_drawable_ext.add_var("load_from_file", var::make_protect<callable>(cni(load_from_file)));
-		darwin_drawable_ext.add_var("save_to_file", var::make_protect<callable>(cni(save_to_file)));
-		darwin_drawable_ext.add_var("clear", var::make_protect<callable>(cni(clear)));
-		darwin_drawable_ext.add_var("fill", var::make_protect<callable>(cni(fill)));
-		darwin_drawable_ext.add_var("resize", var::make_protect<callable>(cni(resize)));
-		darwin_drawable_ext.add_var("get_height", var::make_protect<callable>(cni(get_height)));
-		darwin_drawable_ext.add_var("get_width", var::make_protect<callable>(cni(get_width)));
-		darwin_drawable_ext.add_var("get_pixel", var::make_protect<callable>(cni(get_pixel)));
-		darwin_drawable_ext.add_var("draw_pixel", var::make_protect<callable>(cni(draw_pixel)));
-		darwin_drawable_ext.add_var("draw_line", var::make_protect<callable>(cni(draw_line)));
-		darwin_drawable_ext.add_var("draw_rect", var::make_protect<callable>(cni(draw_rect)));
-		darwin_drawable_ext.add_var("fill_rect", var::make_protect<callable>(cni(fill_rect)));
-		darwin_drawable_ext.add_var("draw_triangle", var::make_protect<callable>(cni(draw_triangle)));
-		darwin_drawable_ext.add_var("fill_triangle", var::make_protect<callable>(cni(fill_triangle)));
-		darwin_drawable_ext.add_var("draw_string", var::make_protect<callable>(cni(draw_string)));
-		darwin_drawable_ext.add_var("draw_picture", var::make_protect<callable>(cni(draw_picture)));
+		(*darwin_drawable_ext)
+		.add_var("load_from_file", make_cni(load_from_file))
+		.add_var("save_to_file", make_cni(save_to_file))
+		.add_var("clear", make_cni(clear))
+		.add_var("fill", make_cni(fill))
+		.add_var("resize", make_cni(resize))
+		.add_var("get_height", make_cni(get_height))
+		.add_var("get_width", make_cni(get_width))
+		.add_var("get_pixel", make_cni(get_pixel))
+		.add_var("draw_pixel", make_cni(draw_pixel))
+		.add_var("draw_line", make_cni(draw_line))
+		.add_var("draw_rect", make_cni(draw_rect))
+		.add_var("fill_rect", make_cni(fill_rect))
+		.add_var("draw_triangle", make_cni(draw_triangle))
+		.add_var("fill_triangle", make_cni(fill_triangle))
+		.add_var("draw_string", make_cni(draw_string))
+		.add_var("draw_picture", make_cni(draw_picture));
 	}
 }
 
-cs::extension *cs_extension()
+void cs_extension_main(cs::name_space* ns)
 {
-	darwin_cs_ext::init();
-	return &darwin_ext;
+	darwin_cs_ext::init(ns);
 }
