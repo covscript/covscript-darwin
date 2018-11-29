@@ -21,7 +21,7 @@
 #define DARWIN_FORCE_BUILTIN
 
 #include <darwin/darwin.hpp>
-#include <covscript/extension.hpp>
+#include <covscript/dll.hpp>
 
 static cs::namespace_t darwin_ui_ext=cs::make_shared_namespace<cs::name_space>();
 static cs::namespace_t darwin_core_ext=cs::make_shared_namespace<cs::name_space>();
