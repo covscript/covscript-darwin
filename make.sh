@@ -22,7 +22,7 @@ function set_flag() {
 }
 
 DEFAULT_CXXFLAGS="-std=c++11 -I$CS_DEV_PATH/include -I../include -shared -fPIC -s -O3"
-DEFAULT_LDFLAGS="-L$CS_DEV_PATH/lib -lcovscript -ldl"
+DEFAULT_LDFLAGS="-L$CS_DEV_PATH/lib -lcovscript"
 DEFAULT_CXX=g++
 
 set_flag CXX $DEFAULT_CXX
