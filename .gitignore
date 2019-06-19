@@ -34,3 +34,6 @@
 # CovScript Files
 include/covscript/
 *.cse
+
+.vscode/
+cmake-build/
