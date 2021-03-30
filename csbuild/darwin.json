@@ -1,0 +1,9 @@
+{
+    "Type": "Extension",
+    "Name": "darwin",
+    "Info": "Darwin Extension",
+    "Author": "CovScript Organization",
+    "Version": "1.0.1",
+    "Target": "build/imports/darwin.cse",
+    "Dependencies": []
+}
